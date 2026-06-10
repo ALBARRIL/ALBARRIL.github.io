@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · AL BARRIL</title>
+  <link rel="stylesheet" href="./css/styles.css?v=7" />
+  <link rel="stylesheet" href="./css/admin.css?v=7" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="sidebar">
+    <div class="admin-brand">
+      <span>AL</span><span class="amp">·</span><span>BARRIL</span>
+    </div>
+    <div class="admin-sub">Panel de control</div>
+
+    <nav class="admin-nav">
+      <button class="admin-nav-item active" data-view="pedidos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H3v9h6v-9zm12-7h-6v16h6V4zM15 9H9v11h6V9z"/></svg>
+        <span>Pedidos</span>
+        <span class="nav-badge" id="nav-pendientes-badge" hidden>0</span>
+      </button>
+      <button class="admin-nav-item" data-view="historial">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Historial</span>
+      </button>
+      <button class="admin-nav-item" data-view="compras">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Compras</span>
+        <span class="nav-badge nav-badge-gold" id="nav-compras-badge" hidden>0</span>
+      </button>
+      <button class="admin-nav-item" data-view="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Menú</span>
+      </button>
+      <button class="admin-nav-item" data-view="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Configuración</span>
+      </button>
+    </nav>
+
+    <div class="admin-footer-side">
+      <button class="btn-logout" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Mobile nav toggle -->
+  <button class="mobile-toggle" id="mobile-toggle" aria-label="Menú">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <!-- VIEW: PEDIDOS (fin de semana activo) -->
+    <section class="admin-view active" id="view-pedidos">
+      <header class="admin-header">
+        <div>
+          <div class="admin-eyebrow">Dashboard</div>
+          <h1 class="admin-title">Pedidos</h1>
+        </div>
+        <div class="admin-stats" id="admin-stats">
+          <div class="stat-card">
+            <div class="stat-label">Pendientes</div>
+            <div class="stat-value" id="stat-pendientes">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Confirmados</div>
+            <div class="stat-value" id="stat-confirmados">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label" id="stat-hoy-label">Activo</div>
+            <div class="stat-value" id="stat-hoy">$0</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Banner de fin de semana activo -->
+      <div class="active-weekend-banner" id="active-weekend-banner" hidden></div>
+
+      <div class="admin-filters-row">
+        <div class="admin-filters">
+          <button class="filter-pill active" data-filter="all">Todos</button>
+          <button class="filter-pill" data-filter="pendiente">Pendientes</button>
+          <button class="filter-pill" data-filter="confirmado">Confirmados</button>
+          <button class="filter-pill" data-filter="entregado">Entregados</button>
+          <button class="filter-pill" data-filter="cancelado">Cancelados</button>
+        </div>
+        <div class="filters-right">
+          <select class="filter-select" id="filter-hora">
+            <option value="">Todas las horas</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="export-excel-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar Excel
+          </button>
+        </div>
+      </div>
+
+      <div class="filtered-total-bar" id="filtered-total" hidden></div>
+
+      <div class="orders-list" id="orders-list">
+        <div class="loading-state">Cargando pedidos...</div>
+      </div>
+    </section>
+
+    <!-- VIEW: HISTORIAL -->
+    <section class="admin-view" id="view-historial" hidden>
+      <header class="admin-header">
+        <div>
+          <div class="admin-eyebrow">Registro</div>
+          <h1 class="admin-title">Historial</h1>
+        </div>
+      </header>
+
+      <div class="historial-filters-bar">
+        <div class="hist-filter-group">
+          <label class="hist-filter-label">Día</label>
+          <select id="hist-dia" class="filter-select">
+            <option value="all">Todos</option>
+            <option value="sabado">Solo sábados</option>
+            <option value="domingo">Solo domingos</option>
+          </select>
+        </div>
+        <div class="hist-filter-group">
+          <label class="hist-filter-label">Desde</label>
+          <input type="date" id="hist-desde" class="filter-input" />
+        </div>
+        <div class="hist-filter-group">
+          <label class="hist-filter-label">Hasta</label>
+          <input type="date" id="hist-hasta" class="filter-input" />
+        </div>
+        <div class="hist-filter-group">
+          <label class="hist-filter-label">Hora</label>
+          <select id="hist-hora" class="filter-select">
+            <option value="">Todas las horas</option>
+          </select>
+        </div>
+        <div class="hist-filter-group">
+          <label class="hist-filter-label">Estado</label>
+          <select id="hist-estado" class="filter-select">
+            <option value="all">Todos</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="entregado">Entregado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="historial-content">
+        <div class="loading-state">Selecciona filtros para ver el historial.</div>
+      </div>
+    </section>
+
+    <!-- VIEW: COMPRAS -->
+    <section class="admin-view" id="view-compras" hidden>
+      <header class="admin-header">
+        <div>
+          <div class="admin-eyebrow">Producción</div>
+          <h1 class="admin-title">Lista de Compras</h1>
+          <p class="admin-subtext" id="compras-subtext">Basado en pedidos confirmados</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="compras-filter-dia" class="filter-select">
+            <option value="activo">Fin de semana activo</option>
+            <option value="sabado">Último sábado</option>
+            <option value="domingo">Último domingo</option>
+            <option value="todos">Todos los confirmados</option>
+          </select>
+          <button class="btn btn-ghost" id="print-compras-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir lista
+          </button>
+        </div>
+      </header>
+
+      <div class="compras-empty" id="compras-empty" hidden>
+        <div style="font-family: var(--f-display); font-size: 2rem; color: var(--gold); letter-spacing: 3px; margin-bottom: 10px;">SIN PEDIDOS CONFIRMADOS</div>
+        <p style="color: var(--cream-soft); opacity: 0.7;">No hay nada que comprar todavía. Los pedidos pendientes deben pasar a "Confirmado" para aparecer aquí.</p>
+      </div>
+
+      <div id="compras-content"></div>
+    </section>
+
+    <!-- VIEW: MENU -->
+    <section class="admin-view" id="view-menu" hidden>
+      <header class="admin-header">
+        <div>
+          <div class="admin-eyebrow">Administración</div>
+          <h1 class="admin-title">Menú</h1>
+        </div>
+        <button class="btn btn-primary" id="add-product-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo producto
+        </button>
+      </header>
+
+      <div class="products-admin-list" id="products-admin-list">
+        <div class="loading-state">Cargando productos...</div>
+      </div>
+    </section>
+
+    <!-- VIEW: CONFIG -->
+    <section class="admin-view" id="view-config" hidden>
+      <header class="admin-header">
+        <div>
+          <div class="admin-eyebrow">Administración</div>
+          <h1 class="admin-title">Configuración</h1>
+        </div>
+      </header>
+
+      <form class="config-form" id="config-form">
+        <div class="form-group">
+          <label class="form-label">WhatsApp de contacto</label>
+          <input type="text" id="cfg-whatsapp" class="form-input" placeholder="573185348389" />
+          <div class="form-hint">Solo números, con código de país (57 para Colombia).</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instagram</label>
+          <input type="text" id="cfg-instagram" class="form-input" placeholder="albarril" />
+          <div class="form-hint">Usuario sin @.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo</label>
+          <input type="email" id="cfg-correo" class="form-input" placeholder="contacto@albarril.co" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección del local</label>
+          <input type="text" id="cfg-direccion" class="form-input" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Detalle de pedido -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal modal-wide">
+      <button class="modal-close" id="order-modal-close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="order-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: Producto (crear/editar) -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal modal-wide">
+      <button class="modal-close" id="product-modal-close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3 class="modal-title" id="product-modal-title">Producto</h3>
+      <form id="product-form">
+        <input type="hidden" id="p-id" />
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input type="text" id="p-nombre" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción *</label>
+          <textarea id="p-desc" class="form-textarea" rows="4" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio (COP) *</label>
+            <input type="number" id="p-precio" class="form-input" required min="0" step="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Orden</label>
+            <input type="number" id="p-orden" class="form-input" min="0" step="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL de imagen (opcional)</label>
+          <input type="text" id="p-imagen" class="form-input" placeholder="Deja vacío para imagen por defecto" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Activo</label>
+          <select id="p-activo" class="form-select">
+            <option value="true">Sí, visible para clientes</option>
+            <option value="false">No, oculto</option>
+          </select>
+        </div>
+
+        <div class="receta-section" id="receta-section" hidden>
+          <div class="receta-divider"><span>RECETA / INGREDIENTES POR PLATO</span></div>
+          <p class="receta-help">Cantidades crudas para 1 plato. Se usan para calcular la lista de compras automáticamente.</p>
+          <div id="receta-fields" class="receta-fields"></div>
+          <button type="button" class="btn-receta-add" id="receta-add-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar ingrediente
+          </button>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="delete-product-btn" hidden>Eliminar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="./js/supabase-client.js?v=7"></script>
+  <script src="./js/admin.js?v=7"></script>
+</body>
+</html>
